@@ -1,0 +1,25 @@
+# Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+
+# Build outputs
+build/
+
+# Android
+android/.gradle/
+android/local.properties
+
+# APK/AAB
+*.apk
+*.aab
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
