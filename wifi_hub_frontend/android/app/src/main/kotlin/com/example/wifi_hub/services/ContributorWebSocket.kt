@@ -88,7 +88,7 @@ class ContributorWebSocket(
             Log.d(TAG, "Coordinator closing: $reason")
             ws.close(1000, null)
         }
-        override fun onFailure(ws: WebSocket, t: Throwable, response: Response){
+        override fun onFailure(ws: WebSocket, t: Throwable, response: Response?){
             Log.e(TAG, "WebSocket failure: ${t.message}")
             activeTunnels.values.forEach{it.close()}
             activeTunnels.clear()
@@ -156,6 +156,8 @@ class ContributorWebSocket(
         if(payload.size< 3+hostlen) return null
         val host = String(payload, 1, hostlen, Charsets.UTF_8)
         val port = ((payload[1+hostlen].toInt() and 0xFF) shl 8) or (payload[1+hostlen+1].toInt() and 0xFF)
+
+        Log.d(TAG, "[PAYLOAD] host=${host} hostLen=${hostlen} port=${port} payload=${payload.joinToString("") { "%02x".format(it) }}")
         return Pair(host, port)
     }
 

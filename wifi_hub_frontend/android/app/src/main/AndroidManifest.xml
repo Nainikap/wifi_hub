@@ -17,6 +17,7 @@
     <!-- Needed to read the DHCP info (hotspot gateway IP) -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
         android:label="wifi_hub"
         android:icon="@mipmap/ic_launcher">
         <activity

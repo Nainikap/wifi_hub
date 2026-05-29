@@ -7,7 +7,7 @@ class ProxyChannel{
 static const _channel = MethodChannel('com.example.wifi_hub/proxy');
   static Future<String> startProxy() async{
     final ip = await _channel.invokeMethod('startProxy', {
-      'coordinatorUrl': 'ws://coordinator-ip:8080/pool',
+      'coordinatorUrl': 'ws://10.192.81.60:8080/pool',
     });
     return ip;
   }
@@ -18,4 +18,8 @@ static const _channel = MethodChannel('com.example.wifi_hub/proxy');
     final ip = await _channel.invokeMethod('getHotspotIP');
     return ip;
   }
+static Future<Map<String, int>> getStats() async {
+  final result = await _channel.invokeMapMethod<String, int>('getStats');
+  return result ?? {'bytesUp': 0, 'bytesDown': 0};
+}
 }

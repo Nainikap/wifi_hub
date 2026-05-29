@@ -34,7 +34,7 @@ class MainActivity : FlutterActivity(){
                         val coordinatorUrl = call.argument<String>("coordinatorUrl")
                         val intent = Intent(this, ProxyService::class.java)
                         if(coordinatorUrl!=null){
-                            putExtra(ProxyService.COORDINATOR_URL, coordinatorUrl)
+                            intent.putExtra(ProxyService.COORDINATOR_URL, coordinatorUrl)
                         }
                         startForegroundService(intent)
                         val ip = getHotspotIP()
