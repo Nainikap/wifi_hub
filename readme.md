@@ -273,3 +273,55 @@ node coordinator.js
 # License
 
 This project is intended for educational and research purposes.
+
+
+///////////////////////////////////////////////////
+
+1. Browser
+      ↓
+   connects to coordinator SOCKS proxy
+
+2. Browser
+      ↓
+   sends SOCKS greeting
+
+3. Browser
+      ↓
+   sends CONNECT google.com:443
+
+4. Coordinator ProxyService
+      ↓
+   parses CONNECT request
+   (host = google.com, port = 443)
+
+5. Coordinator
+      ↓
+   creates TunnelSession on contributor
+
+6. TunnelSession
+      ↓
+   connects to contributor's LOCAL SOCKS proxy
+   (127.0.0.1:1080)
+
+7. TunnelSession
+      ↓
+   sends SECOND SOCKS greeting
+
+8. TunnelSession
+      ↓
+   sends SECOND CONNECT google.com:443
+
+9. Contributor ProxyService
+      ↓
+   opens actual internet socket:
+   Socket("google.com", 443)
+
+10. SUCCESS path established
+
+Browser
+   ↓
+Coordinator
+   ↓ tunnel
+Contributor SOCKS proxy
+   ↓
+Google

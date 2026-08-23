@@ -15,6 +15,8 @@ import java.net.Socket
 import java.net.SocketException
 import android.os.Build
 import android.util.Log
+import kotlin.concurrent.atomics.AtomicLong
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 /**
  * ProxyService — Android foreground service that runs a SOCKS5 proxy server.
@@ -38,6 +40,15 @@ class ProxyService: Service(){
         const val COORDINATOR_URL = "coordinator_url"
     }
     private val coroutine1 = CoroutineScope(Dispatchers.IO+SupervisorJob())
+    @OptIn(ExperimentalAtomicApi::class)
+    val bytesUp = AtomicLong(0)
+    @OptIn(ExperimentalAtomicApi::class)
+    val bytesDown = AtomicLong(0)
+    fun resetStats() {
+        bytesUp.set(0)
+        bytesDown.set(0)
+    }
+
     private var serverSocket : ServerSocket?=null
     private var wsClient: ContributorWebSocket?=null
     private var utils= Socks5Utils()
@@ -49,6 +60,7 @@ class ProxyService: Service(){
         createNotificationChannel()
         startForeground(NOTIF_ID, buildNotification())
 
+        resetStats()
         coroutine1.launch{
             runeProxyServer()
         }
@@ -131,11 +143,11 @@ class ProxyService: Service(){
                 coroutineScope {
                     val clientToTarget = launch (Dispatchers.IO){
 //                            try{clientIn.copyTo(targetOut)}catch(e: Exception){}
-                        relay(clientIn, targetOut, "CLIENT -> TARGET")
+                        relay(clientIn, targetOut, isUpload = true, "CLIENT -> TARGET")
                     }
                     val targetToClient = launch(Dispatchers.IO ){
 //                            try{targetIn.copyTo(clientOut)}catch(e: Exception){}
-                        relay(targetIn, clientOut, "TARGET -> CLIENT")
+                        relay(targetIn, clientOut, isUpload = false,  "TARGET -> CLIENT")
                     }
                     clientToTarget.join()
                     targetToClient.join()
@@ -180,9 +192,11 @@ class ProxyService: Service(){
             "%02X".format(this[it])
         }
     }
+    @OptIn(ExperimentalAtomicApi::class)
     suspend fun relay(
         input: InputStream,
         output: OutputStream,
+        isUpload: Boolean,
         tag: String
     ) {
         val buffer = ByteArray(8192)
@@ -194,6 +208,9 @@ class ProxyService: Service(){
                 Log.d("SOCKS", "$tag CLOSED")
                 break
             }
+
+            if (isUpload) bytesUp.addAndGet(bytesRead.toLong())
+            else          bytesDown.addAndGet(bytesRead.toLong())
 
             Log.d(
                 "SOCKS",

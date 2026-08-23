@@ -64,6 +64,13 @@ class MainActivity : FlutterActivity(){
                 "getHotspotIP" ->{
                     result.success(getHotspotIP())
                 }
+                "getStats" ->{
+                    val stats = mapOf(
+                        "bytesUp"   to ProxyService.bytesUp.get(),
+                        "bytesDown" to ProxyService.bytesDown.get()
+                    )
+                    result.success(stats)
+                }
                 else -> result.notImplemented()
             }
         }
